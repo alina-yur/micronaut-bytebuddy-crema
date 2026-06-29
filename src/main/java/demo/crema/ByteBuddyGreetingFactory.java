@@ -16,11 +16,19 @@ import net.bytebuddy.implementation.FixedValue;
 public final class ByteBuddyGreetingFactory {
 
     public GreetingResult createGreeting(String name) throws Throwable {
+        return createGreeting(name, "Byte Buddy runtime bytecode", "RuntimeGreeting");
+    }
+
+    public GreetingResult createGreeting(PluginSpec plugin) throws Throwable {
+        return createGreeting(plugin.name(), plugin.origin(), "ConferencePlugin");
+    }
+
+    private GreetingResult createGreeting(String name, String originText, String classPrefix) throws Throwable {
         Class<?> generatedType = new ByteBuddy(ClassFileVersion.JAVA_V25)
             .subclass(Object.class)
-            .name("demo.crema.generated.RuntimeGreeting" + System.nanoTime())
+            .name("demo.crema.generated." + classPrefix + System.nanoTime())
             .defineMethod("origin", String.class, Visibility.PUBLIC)
-            .intercept(FixedValue.value("Byte Buddy runtime bytecode"))
+            .intercept(FixedValue.value(originText))
             .make()
             .load(RuntimeGreeting.class.getClassLoader(), ClassLoadingStrategy.Default.WRAPPER)
             .getLoaded();

@@ -20,6 +20,7 @@ native-image --expert-options-all | grep RuntimeClassLoading
 ```shell
 mvn test
 mvn -q compile exec:java
+mvn -q compile exec:java -Dexec.args="Micronaut"
 ```
 
 Expected output includes a generated class name and:
@@ -61,6 +62,44 @@ Micronaut context: true
 Generated class: demo.crema.generated.RuntimeGreeting...
 Hello, Micronaut, from Byte Buddy runtime bytecode
 ```
+
+## Conference Plugin Demo
+
+The stream-friendly path is the conference plugin file:
+
+```shell
+cat plugins/conference.properties
+```
+
+Run it on the JVM:
+
+```shell
+mvn -q compile exec:java -Dexec.args="plugins/conference.properties"
+```
+
+Run it from the Crema native executable:
+
+```shell
+./target/micronaut-bytebuddy-crema plugins/conference.properties
+```
+
+Expected output includes:
+
+```text
+Micronaut context: true
+Plugin file: .../plugins/conference.properties
+Plugin: Conference Hall
+Generated class: demo.crema.generated.ConferencePlugin...
+Hello, Conference Hall, from conference plugin loaded after the native executable started (track: GraalVM Native Image, speaker: Live stream desk)
+```
+
+For a live edit, start reload mode:
+
+```shell
+./target/micronaut-bytebuddy-crema --watch plugins/conference.properties
+```
+
+Change `message`, `track`, or `speaker`, then press Enter in the running terminal. Each reload asks Byte Buddy to generate and load a new `demo.crema.generated.ConferencePlugin...` class after the native executable has already started.
 
 ## Why This Demo Is Small
 

@@ -1,0 +1,12 @@
+#!/usr/bin/env sh
+set -eu
+
+cd "$(dirname "$0")"
+
+image="./target/micronaut-bytebuddy-crema"
+if [ ! -x "$image" ]; then
+  echo "Native executable not found. Build it with: mvn clean -Pcrema -DskipTests package" >&2
+  exit 1
+fi
+
+exec "$image" --watch

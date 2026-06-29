@@ -73,18 +73,25 @@ public final class Application {
     private record DemoCommand(Mode mode, String name, Path pluginPath) {
 
         private static final String DEFAULT_NAME = "Crema";
+        private static final Path DEFAULT_PLUGIN_PATH = Path.of("plugins/conference.properties");
 
         static DemoCommand parse(String[] args) {
             if (args.length == 0) {
                 return name(DEFAULT_NAME);
             }
             if ("--plugin".equals(args[0])) {
-                requirePath(args, "--plugin");
-                return plugin(Path.of(args[1]));
+                return plugin(pathArgOrDefault(args, "--plugin"));
             }
             if ("--watch".equals(args[0])) {
-                requirePath(args, "--watch");
-                return watch(Path.of(args[1]));
+                return watch(pathArgOrDefault(args, "--watch"));
+            }
+            if ("conference".equals(args[0])) {
+                requireNoExtraArgs(args, "conference");
+                return plugin(DEFAULT_PLUGIN_PATH);
+            }
+            if ("watch".equals(args[0])) {
+                requireNoExtraArgs(args, "watch");
+                return watch(DEFAULT_PLUGIN_PATH);
             }
             if (args.length == 1 && args[0].endsWith(".properties")) {
                 return plugin(Path.of(args[0]));
@@ -104,9 +111,19 @@ public final class Application {
             return new DemoCommand(Mode.WATCH, null, pluginPath);
         }
 
-        private static void requirePath(String[] args, String flag) {
-            if (args.length != 2) {
-                throw new IllegalArgumentException(flag + " expects exactly one properties file path");
+        private static Path pathArgOrDefault(String[] args, String flag) {
+            if (args.length == 1) {
+                return DEFAULT_PLUGIN_PATH;
+            }
+            if (args.length == 2) {
+                return Path.of(args[1]);
+            }
+            throw new IllegalArgumentException(flag + " expects zero or one properties file path");
+        }
+
+        private static void requireNoExtraArgs(String[] args, String command) {
+            if (args.length != 1) {
+                throw new IllegalArgumentException(command + " does not take extra arguments");
             }
         }
     }

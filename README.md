@@ -93,13 +93,13 @@ Generated class: demo.crema.generated.ConferencePlugin...
 Hello, Conference Hall, from conference plugin loaded after the native executable started (track: GraalVM Native Image, speaker: Live stream desk)
 ```
 
-For a live edit, start reload mode:
+For a live edit, start reload mode with the short launcher:
 
 ```shell
-./target/micronaut-bytebuddy-crema --watch plugins/conference.properties
+./demo
 ```
 
-Change `message`, `track`, or `speaker`, then press Enter in the running terminal. Each reload asks Byte Buddy to generate and load a new `demo.crema.generated.ConferencePlugin...` class after the native executable has already started.
+That runs the native executable as `./target/micronaut-bytebuddy-crema --watch`, with `plugins/conference.properties` as the default plugin file. Change `message`, `track`, or `speaker`, then press Enter in the running terminal. Each reload asks Byte Buddy to generate and load a new `demo.crema.generated.ConferencePlugin...` class after the native executable has already started.
 
 ## Why This Demo Is Small
 

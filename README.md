@@ -99,7 +99,7 @@ For a live edit, start reload mode with the short launcher:
 ./demo
 ```
 
-That runs the native executable as `./target/micronaut-bytebuddy-crema --watch`, with `plugins/conference.properties` as the default plugin file. Change `message`, `track`, or `speaker`, then press Enter in the running terminal. Each reload asks Byte Buddy to generate and load a new `demo.crema.generated.ConferencePlugin...` class after the native executable has already started.
+That runs the native executable as `./target/micronaut-bytebuddy-crema --watch`, with `plugins/conference.properties` as the default plugin file. Change `name`, `track`, or `speaker`, then press Enter in the running terminal. Each reload asks Byte Buddy to generate and load a new `demo.crema.generated.ConferencePlugin...` class after the native executable has already started.
 
 ## Why This Demo Is Small
 

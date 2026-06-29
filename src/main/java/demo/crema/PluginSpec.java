@@ -9,14 +9,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
 
-public record PluginSpec(String name, String message, String track, String speaker) {
+public record PluginSpec(String name, String track, String speaker) {
 
     private static final String DEFAULT_NAME = "Conference Hall";
-    private static final String DEFAULT_MESSAGE = "runtime-loaded conference plugin";
+    private static final String ORIGIN_MESSAGE = "conference plugin loaded after the native executable started";
 
     public PluginSpec {
         name = clean(name, DEFAULT_NAME);
-        message = clean(message, DEFAULT_MESSAGE);
         track = clean(track, "");
         speaker = clean(speaker, "");
     }
@@ -28,7 +27,6 @@ public record PluginSpec(String name, String message, String track, String speak
         }
         return new PluginSpec(
             properties.getProperty("name"),
-            properties.getProperty("message"),
             properties.getProperty("track"),
             properties.getProperty("speaker")
         );
@@ -43,9 +41,9 @@ public record PluginSpec(String name, String message, String track, String speak
             details.add("speaker: " + speaker);
         }
         if (details.isEmpty()) {
-            return message;
+            return ORIGIN_MESSAGE;
         }
-        return message + " (" + String.join(", ", details) + ")";
+        return ORIGIN_MESSAGE + " (" + String.join(", ", details) + ")";
     }
 
     private static String clean(String value, String fallback) {

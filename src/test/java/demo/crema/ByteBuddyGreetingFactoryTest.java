@@ -34,7 +34,6 @@ final class ByteBuddyGreetingFactoryTest {
             name=Conference Hall
             track=GraalVM Native Image
             speaker=Live stream desk
-            message=conference plugin loaded after the native executable started
             """, StandardCharsets.UTF_8);
 
         PluginSpec plugin = PluginSpec.load(pluginPath);
@@ -52,7 +51,6 @@ final class ByteBuddyGreetingFactoryTest {
     void generatesGreetingFromConferencePlugin() throws Throwable {
         PluginSpec plugin = new PluginSpec(
             "Conference Hall",
-            "conference plugin loaded after the native executable started",
             "GraalVM Native Image",
             "Live stream desk"
         );

@@ -20,7 +20,6 @@ public final class Application {
 
             System.out.println("Micronaut context: " + context.isRunning());
             switch (command.mode()) {
-                case NAME -> printGreeting(factory.createGreeting(command.name()));
                 case PLUGIN -> printPluginGreeting(factory, command.pluginPath());
                 case WATCH -> watchPlugin(factory, command.pluginPath());
             }
@@ -55,7 +54,6 @@ public final class Application {
         GreetingResult result = factory.createGreeting(plugin);
 
         System.out.println("Plugin file: " + pluginPath.toAbsolutePath().normalize());
-        System.out.println("Plugin: " + plugin.name());
         printGreeting(result);
     }
 
@@ -65,19 +63,17 @@ public final class Application {
     }
 
     private enum Mode {
-        NAME,
         PLUGIN,
         WATCH
     }
 
-    private record DemoCommand(Mode mode, String name, Path pluginPath) {
+    private record DemoCommand(Mode mode, Path pluginPath) {
 
-        private static final String DEFAULT_NAME = "Crema";
         private static final Path DEFAULT_PLUGIN_PATH = Path.of("plugins/conference.properties");
 
         static DemoCommand parse(String[] args) {
             if (args.length == 0) {
-                return name(DEFAULT_NAME);
+                return plugin(DEFAULT_PLUGIN_PATH);
             }
             if ("--plugin".equals(args[0])) {
                 return plugin(pathArgOrDefault(args, "--plugin"));
@@ -96,19 +92,15 @@ public final class Application {
             if (args.length == 1 && args[0].endsWith(".properties")) {
                 return plugin(Path.of(args[0]));
             }
-            return name(String.join(" ", args));
-        }
-
-        private static DemoCommand name(String name) {
-            return new DemoCommand(Mode.NAME, name, null);
+            throw new IllegalArgumentException("expected conference, watch, --plugin, --watch, or a .properties file path");
         }
 
         private static DemoCommand plugin(Path pluginPath) {
-            return new DemoCommand(Mode.PLUGIN, null, pluginPath);
+            return new DemoCommand(Mode.PLUGIN, pluginPath);
         }
 
         private static DemoCommand watch(Path pluginPath) {
-            return new DemoCommand(Mode.WATCH, null, pluginPath);
+            return new DemoCommand(Mode.WATCH, pluginPath);
         }
 
         private static Path pathArgOrDefault(String[] args, String flag) {

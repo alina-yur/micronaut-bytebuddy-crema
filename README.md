@@ -2,7 +2,7 @@
 
 Minimal demo for a Micronaut app that asks Byte Buddy to generate bytecode and load a new class at run time.
 
-The generated class is not present during the Native Image build. At run time, Byte Buddy defines `demo.crema.generated.RuntimeGreeting...`, Crema loads it, and AOT-compiled Micronaut application code invokes its generated `origin()` method through a method handle.
+The generated class is not present during the Native Image build. At run time, Byte Buddy defines `demo.crema.generated.ConferencePlugin...`, Crema loads it, and AOT-compiled Micronaut application code invokes its generated `message()` method through a method handle.
 
 ## Prerequisites
 
@@ -20,13 +20,16 @@ native-image --expert-options-all | grep RuntimeClassLoading
 ```shell
 mvn test
 mvn -q compile exec:java
-mvn -q compile exec:java -Dexec.args="Micronaut"
+mvn -q compile exec:java -Dexec.args="conference"
 ```
 
-Expected output includes a generated class name and:
+Expected output includes:
 
 ```text
-Hello, Micronaut, from Byte Buddy runtime bytecode
+Micronaut context: true
+Plugin file: .../plugins/conference.properties
+Generated class: demo.crema.generated.ConferencePlugin...
+hello from Alina at Voxxed Zurich! Let's talk about what's latest and greatest in GraalVM :)
 ```
 
 ## Native Image Without Crema
@@ -35,15 +38,15 @@ This builds a normal native image. The executable starts, but the Byte Buddy pat
 
 ```shell
 mvn clean -Pnative-baseline -DskipTests package
-./target/micronaut-bytebuddy-baseline Micronaut
+./target/micronaut-bytebuddy-baseline conference
 ```
 
 Expected failure includes:
 
 ```text
 Byte Buddy runtime class loading failed.
-java.lang.IllegalStateException: Cannot load class class demo.crema.generated.RuntimeGreeting...
-Caused by: java.lang.ClassNotFoundException: demo.crema.generated.RuntimeGreeting...
+java.lang.IllegalStateException: Cannot load class class demo.crema.generated.ConferencePlugin...
+Caused by: java.lang.ClassNotFoundException: demo.crema.generated.ConferencePlugin...
 ```
 
 ## Native Image With Crema
@@ -52,15 +55,16 @@ This profile adds `-H:+RuntimeClassLoading` to the Native Image build.
 
 ```shell
 mvn clean -Pcrema -DskipTests package
-./target/micronaut-bytebuddy-crema Micronaut
+./target/micronaut-bytebuddy-crema conference
 ```
 
 Expected output includes:
 
 ```text
 Micronaut context: true
-Generated class: demo.crema.generated.RuntimeGreeting...
-Hello, Micronaut, from Byte Buddy runtime bytecode
+Plugin file: .../plugins/conference.properties
+Generated class: demo.crema.generated.ConferencePlugin...
+hello from Alina at Voxxed Zurich! Let's talk about what's latest and greatest in GraalVM :)
 ```
 
 ## Conference Plugin Demo
@@ -80,7 +84,7 @@ mvn -q compile exec:java -Dexec.args="plugins/conference.properties"
 Run it from the Crema native executable:
 
 ```shell
-./target/micronaut-bytebuddy-crema plugins/conference.properties
+./target/micronaut-bytebuddy-crema conference
 ```
 
 Expected output includes:
@@ -88,9 +92,8 @@ Expected output includes:
 ```text
 Micronaut context: true
 Plugin file: .../plugins/conference.properties
-Plugin: Conference Hall
 Generated class: demo.crema.generated.ConferencePlugin...
-Hello, Conference Hall, from conference plugin loaded after the native executable started (track: GraalVM Native Image, speaker: Live stream desk)
+hello from Alina at Voxxed Zurich! Let's talk about what's latest and greatest in GraalVM :)
 ```
 
 For a live edit, start reload mode with the short launcher:
@@ -99,7 +102,7 @@ For a live edit, start reload mode with the short launcher:
 ./demo
 ```
 
-That runs the native executable as `./target/micronaut-bytebuddy-crema --watch`, with `plugins/conference.properties` as the default plugin file. Change `name`, `track`, or `speaker`, then press Enter in the running terminal. Each reload asks Byte Buddy to generate and load a new `demo.crema.generated.ConferencePlugin...` class after the native executable has already started.
+That runs the native executable as `./target/micronaut-bytebuddy-crema --watch`, with `plugins/conference.properties` as the default plugin file. Change `name`, `location`, or `speaker`, then press Enter in the running terminal. Each reload asks Byte Buddy to generate and load a new `demo.crema.generated.ConferencePlugin...` class after the native executable has already started.
 
 ## Why This Demo Is Small
 

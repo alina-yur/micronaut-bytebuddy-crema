@@ -5,18 +5,17 @@ import java.io.Reader;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Properties;
 
-public record PluginSpec(String name, String track, String speaker) {
+public record PluginSpec(String name, String location, String speaker) {
 
-    private static final String DEFAULT_NAME = "Conference Hall";
-    private static final String ORIGIN_MESSAGE = "conference plugin loaded after the native executable started";
+    private static final String DEFAULT_NAME = "Conference";
+    private static final String DEFAULT_SPEAKER = "the conference speaker";
+    private static final String GRAALVM_MESSAGE = "! Let's talk about what's latest and greatest in GraalVM :)";
 
     public PluginSpec {
         name = clean(name, DEFAULT_NAME);
-        track = clean(track, "");
+        location = clean(location, "");
         speaker = clean(speaker, "");
     }
 
@@ -27,23 +26,20 @@ public record PluginSpec(String name, String track, String speaker) {
         }
         return new PluginSpec(
             properties.getProperty("name"),
-            properties.getProperty("track"),
+            properties.getProperty("location"),
             properties.getProperty("speaker")
         );
     }
 
-    public String origin() {
-        List<String> details = new ArrayList<>();
-        if (!track.isBlank()) {
-            details.add("track: " + track);
+    public String message() {
+        StringBuilder message = new StringBuilder("hello from ")
+            .append(speaker.isBlank() ? DEFAULT_SPEAKER : speaker)
+            .append(" at ")
+            .append(name);
+        if (!location.isBlank()) {
+            message.append(' ').append(location);
         }
-        if (!speaker.isBlank()) {
-            details.add("speaker: " + speaker);
-        }
-        if (details.isEmpty()) {
-            return ORIGIN_MESSAGE;
-        }
-        return ORIGIN_MESSAGE + " (" + String.join(", ", details) + ")";
+        return message.append(GRAALVM_MESSAGE).toString();
     }
 
     private static String clean(String value, String fallback) {

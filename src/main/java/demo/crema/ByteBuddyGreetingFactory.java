@@ -15,29 +15,29 @@ import net.bytebuddy.implementation.FixedValue;
 @Requires(classes = ByteBuddy.class)
 public final class ByteBuddyGreetingFactory {
 
-    public GreetingResult createGreeting(String name) throws Throwable {
-        return createGreeting(name, "Byte Buddy runtime bytecode", "RuntimeGreeting");
-    }
-
     public GreetingResult createGreeting(PluginSpec plugin) throws Throwable {
-        return createGreeting(plugin.name(), plugin.origin(), "ConferencePlugin");
+        GeneratedMessage generated = createGeneratedMessage(plugin.message(), "ConferencePlugin");
+        return new GreetingResult(generated.className(), generated.message());
     }
 
-    private GreetingResult createGreeting(String name, String originText, String classPrefix) throws Throwable {
+    private GeneratedMessage createGeneratedMessage(String messageText, String classPrefix) throws Throwable {
         Class<?> generatedType = new ByteBuddy(ClassFileVersion.JAVA_V25)
             .subclass(Object.class)
             .name("demo.crema.generated." + classPrefix + System.nanoTime())
-            .defineMethod("origin", String.class, Visibility.PUBLIC)
-            .intercept(FixedValue.value(originText))
+            .defineMethod("message", String.class, Visibility.PUBLIC)
+            .intercept(FixedValue.value(messageText))
             .make()
-            .load(RuntimeGreeting.class.getClassLoader(), ClassLoadingStrategy.Default.WRAPPER)
+            .load(ByteBuddyGreetingFactory.class.getClassLoader(), ClassLoadingStrategy.Default.WRAPPER)
             .getLoaded();
 
         MethodHandle constructor = MethodHandles.publicLookup()
             .findConstructor(generatedType, MethodType.methodType(void.class));
         Object greeting = constructor.invoke();
-        MethodHandle origin = MethodHandles.publicLookup()
-            .findVirtual(generatedType, "origin", MethodType.methodType(String.class));
-        return new GreetingResult(generatedType.getName(), RuntimeGreeting.message(name, (String) origin.invoke(greeting)));
+        MethodHandle message = MethodHandles.publicLookup()
+            .findVirtual(generatedType, "message", MethodType.methodType(String.class));
+        return new GeneratedMessage(generatedType.getName(), (String) message.invoke(greeting));
+    }
+
+    private record GeneratedMessage(String className, String message) {
     }
 }

@@ -17,42 +17,31 @@ final class ByteBuddyGreetingFactoryTest {
     Path tempDir;
 
     @Test
-    void generatesGreetingClassAtRuntime() throws Throwable {
-        try (ApplicationContext context = ApplicationContext.run()) {
-            GreetingResult result = context.getBean(ByteBuddyGreetingFactory.class)
-                .createGreeting("Micronaut");
-
-            assertTrue(result.generatedClassName().startsWith("demo.crema.generated.RuntimeGreeting"));
-            assertEquals("Hello, Micronaut, from Byte Buddy runtime bytecode", result.message());
-        }
-    }
-
-    @Test
     void loadsConferencePluginProperties() throws IOException {
         Path pluginPath = tempDir.resolve("conference.properties");
         Files.writeString(pluginPath, """
-            name=Conference Hall
-            track=GraalVM Native Image
-            speaker=Live stream desk
+            name=Devoxx
+            location=Belgium
+            speaker=Alina
             """, StandardCharsets.UTF_8);
 
         PluginSpec plugin = PluginSpec.load(pluginPath);
 
-        assertEquals("Conference Hall", plugin.name());
-        assertEquals("GraalVM Native Image", plugin.track());
-        assertEquals("Live stream desk", plugin.speaker());
+        assertEquals("Devoxx", plugin.name());
+        assertEquals("Belgium", plugin.location());
+        assertEquals("Alina", plugin.speaker());
         assertEquals(
-            "conference plugin loaded after the native executable started (track: GraalVM Native Image, speaker: Live stream desk)",
-            plugin.origin()
+            "hello from Alina at Devoxx Belgium! Let's talk about what's latest and greatest in GraalVM :)",
+            plugin.message()
         );
     }
 
     @Test
     void generatesGreetingFromConferencePlugin() throws Throwable {
         PluginSpec plugin = new PluginSpec(
-            "Conference Hall",
-            "GraalVM Native Image",
-            "Live stream desk"
+            "Devoxx",
+            "Belgium",
+            "Alina"
         );
 
         try (ApplicationContext context = ApplicationContext.run()) {
@@ -61,7 +50,7 @@ final class ByteBuddyGreetingFactoryTest {
 
             assertTrue(result.generatedClassName().startsWith("demo.crema.generated.ConferencePlugin"));
             assertEquals(
-                "Hello, Conference Hall, from conference plugin loaded after the native executable started (track: GraalVM Native Image, speaker: Live stream desk)",
+                "hello from Alina at Devoxx Belgium! Let's talk about what's latest and greatest in GraalVM :)",
                 result.message()
             );
         }
